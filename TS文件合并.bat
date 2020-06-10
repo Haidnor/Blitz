@@ -1,0 +1,1 @@
+copy /b "%~dp0"\*.ts  "%~dp0"\news.ts
