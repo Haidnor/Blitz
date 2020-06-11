@@ -18,7 +18,7 @@ public class Hacker implements Runnable {
 
     public void run() {
         int n = 0;
-        synchronized (new Object()) {
+        synchronized (this) {
             fileNum = fileNum + 1;
             n = fileNum;
             threadCount++;
@@ -28,7 +28,7 @@ public class Hacker implements Runnable {
         String url = "https://cn1.ruioushang.com/hls/20190218/e6a823fd631ed4b96faac86367f5e39e/1550432694/film_";
         String filename = FileUtil.supplementZero(5, n);
         url = url + filename + ".ts";
-        String path = "e:/video/" + filename + ".ts";
+        String path = "D:/video/" + filename + ".ts";
 
         DataInputStream dataInputStream = null;
         FileOutputStream fileOutputStream = null;
@@ -53,7 +53,7 @@ public class Hacker implements Runnable {
             System.out.println("Error:" + url);
             e.printStackTrace();
         }
-        synchronized (new Object()) {
+        synchronized (this) {
             threadCount--;
             // System.out.println("Current thread num:" + threadCount);
         }
@@ -63,7 +63,7 @@ public class Hacker implements Runnable {
         // 下载文件数
         int num = 2000;
         // 最大并发数
-        int threadSize = 50;
+        int threadSize = 10;
 
         int i = 0;
         boolean mark = true;

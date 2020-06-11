@@ -25,12 +25,12 @@ public class Downloader {
     /**
      * 下载的总线程数
      */
-    private static final int THREAD_AMOUNT = 8;
+    private static final int THREAD_AMOUNT = 10;
 
     /**
      * 下载目录。如果该目录不存在则会自动创建
      */
-    private static final String DOWNLOAD_DIR_PATH = "E:/Download";
+    private static final String DOWNLOAD_DIR_PATH = "d:/Download";
 
     /**
      * 每个线程下载多少字节
@@ -60,8 +60,7 @@ public class Downloader {
         int totalLen = conn.getContentLength();
         // 计算每个线程要下载的长度
         threadLen = (totalLen + THREAD_AMOUNT - 1) / THREAD_AMOUNT;
-
-        System.out.println("totalLen=" + totalLen / 1048576.0 + ",threadLen:" + threadLen / 1048576.0);
+        System.out.println("并发下载量: " + THREAD_AMOUNT + "  总下载量: " + totalLen  + "  单个线程下载量: " + threadLen);
 
         // 在本地创建一个和服务端大小相同的文件
         RandomAccessFile raf = new RandomAccessFile(file, "rws");
@@ -95,7 +94,7 @@ public class Downloader {
                 conn.setConnectTimeout(5000);
 
                 // 设置浏览器标识
-                conn.setRequestProperty("User-agent", "Mozilla/4.0");
+                conn.setRequestProperty("User-agent", "Mozilla/5.0");
                 // 设置当前线程下载的范围
                 conn.setRequestProperty("Range", "bytes=" + start + "-" + end);
 
@@ -126,9 +125,11 @@ public class Downloader {
     }
 
     public static void main(String[] args) throws IOException {
-        // 下载链接
-        String address = "http://forspeed.onlinedown.net/down/eclipse-jee-mars-1-win32-x86_64.zip";
-        new Downloader(address, "eclipse-jee-mars-1-win32-x86_64.zip").download();
+        // https://www.jetbrains.com/idea/download/download-thanks.html?platform=windows
+       // String address = "http://forspeed.onlinedown.net/down/eclipse-jee-mars-1-win32-x86_64.zip";
+
+        String address = "https://download.jetbrains.8686c.com/idea/ideaIU-2020.1.2.exe";
+        new Downloader(address, "ideaIU-2020.1.2.exe").download();
     }
 
 }
