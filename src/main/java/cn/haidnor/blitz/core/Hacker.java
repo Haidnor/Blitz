@@ -83,12 +83,15 @@ public class Hacker implements Runnable {
 
     public static void main(String[] args) {
         // 测试总数
-        int totalFiles = 1944;
+        int totalFiles = 1700;
+
+        // 起始数字
+        int start = 1;
 
         queue = new ArrayDeque<HttpRequest>();
-        for (int i = 1; i <= totalFiles; i++) {
+        for (int i = start; i <= totalFiles; i++) {
             // 请求地址.去除文件编号以及后缀
-            String address = "https://cn1.ruioushang.com/hls/20190218/e6a823fd631ed4b96faac86367f5e39e/1550432694/film_";
+            String address = " https://cn4.ruioushang.com/hls/20181203/e766ce3e55f1b3a1361df734cb637d52/1543814519/film_";
             String filename = FileUtil.supplementZero(5, i);
             address = address + filename + ".ts";
 
