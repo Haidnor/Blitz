@@ -1,10 +1,14 @@
 package cn.haidnor.blitz.core;
 
+import cn.haidnor.blitz.pojo.HttpRequest;
 import cn.haidnor.blitz.util.FileUtil;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayDeque;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * 多线程下载多个文件
@@ -13,30 +17,26 @@ import java.net.URLConnection;
  * @author Haidnor
  */
 public class Hacker implements Runnable {
-    public static int threadCount = 0;
-    public static int fileNum;
+    static int size;
+    static ArrayDeque<HttpRequest> queue;
 
     public void run() {
-        int n = 0;
-        synchronized (this) {
-            fileNum = fileNum + 1;
-            n = fileNum;
-            threadCount++;
+        HttpRequest request = null;
+        Object obj = new Object();
+        synchronized (obj) {
+            request = queue.pop();
         }
 
-        // 下载 URL 根据不同的网站自行修改
-        String url = "https://cn1.ruioushang.com/hls/20190218/e6a823fd631ed4b96faac86367f5e39e/1550432694/film_";
-        String filename = FileUtil.supplementZero(5, n);
-        url = url + filename + ".ts";
-        String path = "D:/video/" + filename + ".ts";
+        String path = "E:/video/" + request.filename + ".ts";
 
         DataInputStream dataInputStream = null;
         FileOutputStream fileOutputStream = null;
+
         try {
-            URLConnection connection = new URL(url).openConnection();
-            connection.setRequestProperty("User-agent", "Mozilla/5.0");
-            
-            InputStream inputStream = connection.getInputStream();
+            URLConnection urlConnection = new URL(request.address).openConnection();
+            urlConnection.setRequestProperty("User-agent", "Mozilla/5.0");
+
+            InputStream inputStream = urlConnection.getInputStream();
 
             dataInputStream = new DataInputStream(inputStream);
             fileOutputStream = new FileOutputStream(new File(path));
@@ -48,40 +48,71 @@ public class Hacker implements Runnable {
                 output.write(buffer, 0, length);
             }
             fileOutputStream.write(output.toByteArray());
-            System.out.println(Thread.currentThread().getName() + " Complete：" + url);
+
+            synchronized (new Object()) {
+                size++;
+                System.out.println(Thread.currentThread().getName() + " Complete：" + request.address + "   :" + size);
+            }
 
         } catch (Exception e) {
-            System.out.println("Error:" + url);
-            e.printStackTrace();
-        }
-        synchronized (this) {
-            threadCount--;
-            // System.out.println("Current thread num:" + threadCount);
+            synchronized (new Object()) {
+                // 连接测试次数
+                if (request.count < 10) {
+                    queue.add(request);
+                }
+                request.count++;
+            }
+        } finally {
+            try {
+                if (dataInputStream != null) {
+                    dataInputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                if (fileOutputStream != null) {
+                    fileOutputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public static void main(String[] args) {
-        // 下载文件数
-        int num = 2000;
-        // 最大并发数
-        int threadSize = 10;
+        // 测试总数
+        int totalFiles = 1944;
 
-        int i = 0;
-        boolean mark = true;
-        while (mark) {
-            if (threadCount <= threadSize) {
-                new Thread(new Hacker(), "Thread" + i).start();
-                i++;
-            }
+        queue = new ArrayDeque<HttpRequest>();
+        for (int i = 1; i <= totalFiles; i++) {
+            // 请求地址.去除文件编号以及后缀
+            String address = "https://cn1.ruioushang.com/hls/20190218/e6a823fd631ed4b96faac86367f5e39e/1550432694/film_";
+            String filename = FileUtil.supplementZero(5, i);
+            address = address + filename + ".ts";
+
+            HttpRequest request = new HttpRequest();
+            request.address = address;
+            request.filename = filename;
+            request.count = 0;
+
+            queue.add(request);
+        }
+
+        // TreadPool
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(50);
+
+        while (!queue.isEmpty()) {
+            Runnable thread = new Hacker();
+            fixedThreadPool.submit(thread);
             try {
-                Thread.sleep(10);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if (i >= num) {
-                mark = false;
-            }
         }
+        fixedThreadPool.shutdown();
     }
-    
+
 }
