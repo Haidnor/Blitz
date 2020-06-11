@@ -29,7 +29,7 @@ public class HttpUtil {
             // request status
             status = oc.getResponseCode();
         } catch (IOException e) {
-            e.printStackTrace();
+            return status;
         }
         return status;
     }

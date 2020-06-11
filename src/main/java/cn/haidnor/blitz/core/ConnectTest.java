@@ -3,9 +3,10 @@ package cn.haidnor.blitz.core;
 import cn.haidnor.blitz.util.FileUtil;
 import cn.haidnor.blitz.util.HttpUtil;
 
-import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * 多线程下载多个文件
@@ -14,60 +15,57 @@ import java.net.URLConnection;
  * @author Haidnor
  */
 public class ConnectTest implements Runnable {
-
-    public static int threadCount = 0;
-    public static int fileNum;
-    public static int connectSize;
+    public static int size;
+    public static ArrayDeque<String> queue;
 
     public void run() {
-        int n = 0;
+        String address;
+
         synchronized (this) {
-            fileNum += 1;
-            n = fileNum;
-            threadCount++;
+            address = queue.pop();
         }
 
-        // 下载 URL 根据不同的网站自行修改
-        String address = "https://cn1.ruioushang.com/hls/20190218/e6a823fd631ed4b96faac86367f5e39e/1550432694/film_";
-        String filename = FileUtil.supplementZero(5, n);
-        address = address + filename + ".ts";
-        String path = "D:/video/" + filename + ".ts";
-
-        int connection = HttpUtil.testHttpConnection(address, 30000);
+        int connection = HttpUtil.testHttpConnection(address, 3000);
+        System.out.println(address + "    :" + connection);
 
         synchronized (this) {
             if (connection == 200) {
-                connectSize++;
+                ++size;
+                System.out.println("已完成:" + size);
+            } else {
+                queue.add(address);
             }
-            threadCount--;
         }
     }
 
     public static void main(String[] args) {
-        // 下载文件数
-        int num = 2000;
-        // 最大并发数
-        int threadSize = 100;
+        queue = new ArrayDeque<String>();
 
-        int i = 0;
-        boolean mark = true;
-        while (mark) {
-            if (threadCount <= threadSize) {
-                new Thread(new ConnectTest(), "Thread" + i).start();
-                i++;
-            }
+        for (int i = 0; i <= 1000; i++) {
+            String address = "https://jingdian.qincai-zuida.com/20200610/8212_9426d3e9/1000k/hls/5e1ca694042";
+            String filename = FileUtil.supplementZero(3, i);
+            address = address + filename + ".ts";
+            queue.add(address);
+        }
+
+        /*
+         * 创建具一个可重用的，有固定数量的线程池
+         * 每次提交一个任务就提交一个线程，直到线程达到线城池大小，就不会创建新线程了
+         * 线程池的大小达到最大后达到稳定不变，如果一个线程异常终止，则会创建新的线程
+         */
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(100);
+
+        while (!queue.isEmpty()) {
+            Runnable thread = new ConnectTest();
+            fixedThreadPool.submit(thread);
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if (i >= num) {
-                mark = false;
-            }
         }
 
-        System.out.println("可下载总量:" + connectSize);
+        fixedThreadPool.shutdown();
     }
-
 
 }
