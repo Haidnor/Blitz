@@ -7,35 +7,33 @@ import java.net.URL;
 import java.net.URLConnection;
 
 /**
- * 使用 cmd 指令合并文件例如
- * copy/b E:\video\*.ts E:\new.ts
+ * 多线程下载多个文件
  * https://www.qsptv.ne
+ *
+ * @author Haidnor
  */
 public class Hacker implements Runnable {
     public static int threadCount = 0;
-    public static int folder;
+    public static int fileNum;
 
-    @Override
     public void run() {
-        int x = 0;
+        int n = 0;
         synchronized (new Object()) {
-            folder = folder + 1;
-            x = folder;
+            fileNum = fileNum + 1;
+            n = fileNum;
             threadCount++;
         }
 
         // 下载 URL 根据不同的网站自行修改
-        String httpURL = "https://cn1.ruioushang.com/hls/20190218/e6a823fd631ed4b96faac86367f5e39e/1550432694/film_";
-        String filename = FileUtil.supplementZero(5, x);
-        httpURL = httpURL + filename +  ".ts";
+        String url = "https://cn1.ruioushang.com/hls/20190218/e6a823fd631ed4b96faac86367f5e39e/1550432694/film_";
+        String filename = FileUtil.supplementZero(5, n);
+        url = url + filename + ".ts";
         String path = "e:/video/" + filename + ".ts";
-
 
         DataInputStream dataInputStream = null;
         FileOutputStream fileOutputStream = null;
         try {
-            URL url = new URL(httpURL);
-            URLConnection connection = new URL(httpURL).openConnection();
+            URLConnection connection = new URL(url).openConnection();
             connection.setRequestProperty("User-agent", "Mozilla/4.0");
             InputStream inputStream = connection.getInputStream();
 
@@ -49,11 +47,11 @@ public class Hacker implements Runnable {
                 output.write(buffer, 0, length);
             }
             fileOutputStream.write(output.toByteArray());
-            System.out.println(Thread.currentThread().getName() + " Complete：" + httpURL);
+            System.out.println(Thread.currentThread().getName() + " Complete：" + url);
 
         } catch (Exception e) {
-            System.out.println("Error:" + httpURL);
-            // e.printStackTrace();
+            System.out.println("Error:" + url);
+            e.printStackTrace();
         }
         synchronized (new Object()) {
             threadCount--;
@@ -68,7 +66,8 @@ public class Hacker implements Runnable {
         int threadSize = 50;
 
         int i = 0;
-        while (true) {
+        boolean mark = true;
+        while (mark) {
             if (threadCount <= threadSize) {
                 new Thread(new Hacker(), "Thread" + i).start();
                 i++;
@@ -79,7 +78,7 @@ public class Hacker implements Runnable {
                 e.printStackTrace();
             }
             if (i >= num) {
-                break;
+                mark = false;
             }
         }
     }
