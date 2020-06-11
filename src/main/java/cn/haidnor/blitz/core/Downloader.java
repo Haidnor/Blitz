@@ -73,7 +73,6 @@ public class Downloader {
         for (int i = 0; i < THREAD_AMOUNT; i++) {
             new DownloadThread(i).start();
         }
-
     }
 
     private class DownloadThread extends Thread {
