@@ -34,7 +34,8 @@ public class Hacker implements Runnable {
         FileOutputStream fileOutputStream = null;
         try {
             URLConnection connection = new URL(url).openConnection();
-            connection.setRequestProperty("User-agent", "Mozilla/4.0");
+            connection.setRequestProperty("User-agent", "Mozilla/5.0");
+            
             InputStream inputStream = connection.getInputStream();
 
             dataInputStream = new DataInputStream(inputStream);
@@ -81,6 +82,11 @@ public class Hacker implements Runnable {
                 mark = false;
             }
         }
+    }
+    
+    /** 获取下载总量 */
+    public static void test(){
+
     }
 
 }
