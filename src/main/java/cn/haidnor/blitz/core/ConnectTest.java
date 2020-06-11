@@ -4,7 +4,6 @@ import cn.haidnor.blitz.util.FileUtil;
 import cn.haidnor.blitz.util.HttpUtil;
 
 import java.util.ArrayDeque;
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -15,57 +14,86 @@ import java.util.concurrent.Executors;
  * @author Haidnor
  */
 public class ConnectTest implements Runnable {
-    public static int size;
-    public static ArrayDeque<String> queue;
+    static int size;
+    static ArrayDeque<HttpRequest> queue;
 
     public void run() {
-        String address;
+        HttpRequest request;
 
-        synchronized (this) {
-            address = queue.pop();
+        Object obj = new Object();
+
+        synchronized (obj) {
+            request = queue.pop();
         }
 
-        int connection = HttpUtil.testHttpConnection(address, 3000);
-        System.out.println(address + "    :" + connection);
+        int connection = HttpUtil.testHttpConnection(request.address, 3000);
+        System.out.println(request.address + " :" + connection);
 
-        synchronized (this) {
+        synchronized (obj) {
             if (connection == 200) {
-                ++size;
-                System.out.println("已完成:" + size);
+                size++;
+                System.out.println("可用连接数:" + size);
             } else {
-                queue.add(address);
+                // 连接测试次数
+                if (request.count < 5) {
+                    queue.add(request);
+                }
+                System.out.println("可用连接数:" + size);
+                request.count++;
             }
         }
     }
 
     public static void main(String[] args) {
-        queue = new ArrayDeque<String>();
+        // 测试总数
+        int totalFiles = 2000;
 
-        for (int i = 0; i <= 1000; i++) {
-            String address = "https://jingdian.qincai-zuida.com/20200610/8212_9426d3e9/1000k/hls/5e1ca694042";
-            String filename = FileUtil.supplementZero(3, i);
+
+        queue = new ArrayDeque<HttpRequest>();
+        for (int i = 1; i <= totalFiles; i++) {
+            // 请求地址.去除文件编号以及后缀
+            String address = "https://cn1.ruioushang.com/hls/20190218/e6a823fd631ed4b96faac86367f5e39e/1550432694/film_";
+            String filename = FileUtil.supplementZero(5, i);
             address = address + filename + ".ts";
-            queue.add(address);
+
+            HttpRequest request = new HttpRequest();
+            request.address = address;
+            request.filename = filename;
+            request.count = 0;
+
+            queue.add(request);
         }
 
-        /*
-         * 创建具一个可重用的，有固定数量的线程池
-         * 每次提交一个任务就提交一个线程，直到线程达到线城池大小，就不会创建新线程了
-         * 线程池的大小达到最大后达到稳定不变，如果一个线程异常终止，则会创建新的线程
-         */
-        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(100);
+        // TreadPool
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(50);
 
         while (!queue.isEmpty()) {
             Runnable thread = new ConnectTest();
             fixedThreadPool.submit(thread);
             try {
-                Thread.sleep(10);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-
         fixedThreadPool.shutdown();
     }
 
+}
+
+class HttpRequest {
+    /**
+     * 请求地址
+     */
+    String address;
+
+    /**
+     * 文件名
+     */
+    String filename;
+
+    /**
+     * 连接次数
+     */
+    int count = 0;
 }

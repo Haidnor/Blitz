@@ -84,9 +84,4 @@ public class Hacker implements Runnable {
         }
     }
     
-    /** 获取下载总量 */
-    public static void test(){
-
-    }
-
 }
