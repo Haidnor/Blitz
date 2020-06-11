@@ -21,14 +21,13 @@ public class Hacker2 implements Runnable {
     static ArrayDeque<HttpRequest> queue;
 
     public void run() {
-        HttpRequest request;
+        HttpRequest request = null;
         Object obj = new Object();
         synchronized (obj) {
             request = queue.pop();
         }
 
         String path = "E:/video/" + request.filename + ".ts";
-
 
         DataInputStream dataInputStream = null;
         FileOutputStream fileOutputStream = null;
@@ -49,10 +48,12 @@ public class Hacker2 implements Runnable {
                 output.write(buffer, 0, length);
             }
             fileOutputStream.write(output.toByteArray());
+
             synchronized (new Object()) {
                 size++;
                 System.out.println(Thread.currentThread().getName() + " Complete：" + request.address + "   :" + size);
             }
+
         } catch (Exception e) {
             synchronized (new Object()) {
                 // 连接测试次数
@@ -103,7 +104,7 @@ public class Hacker2 implements Runnable {
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(50);
 
         while (!queue.isEmpty()) {
-            Runnable thread = new ConnectTest();
+            Runnable thread = new Hacker2();
             fixedThreadPool.submit(thread);
             try {
                 Thread.sleep(1);
