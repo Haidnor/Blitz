@@ -1,5 +1,6 @@
 package cn.haidnor.blitz.core;
 
+import cn.haidnor.blitz.pojo.HttpRequest;
 import cn.haidnor.blitz.util.FileUtil;
 import cn.haidnor.blitz.util.HttpUtil;
 
@@ -78,22 +79,4 @@ public class ConnectTest implements Runnable {
         }
         fixedThreadPool.shutdown();
     }
-
-}
-
-class HttpRequest {
-    /**
-     * 请求地址
-     */
-    String address;
-
-    /**
-     * 文件名
-     */
-    String filename;
-
-    /**
-     * 连接次数
-     */
-    int count = 0;
 }
