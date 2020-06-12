@@ -9,8 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * 多线程下载多个文件
- * https://www.qsptv.ne
+ * 测试 url 连接
  *
  * @author Haidnor
  */
@@ -51,7 +50,6 @@ public class ConnectTest implements Runnable {
 
         // 起始数字
         int start = 1;
-
 
         queue = new ArrayDeque<HttpRequest>();
         for (int i = start; i <= totalFiles; i++) {
