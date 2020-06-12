@@ -102,8 +102,7 @@ public class Hacker implements Runnable {
             queue.add(request);
         }
 
-        // TreadPool
-        // 线程数与本地的网络有关,根据情况设置
+        // 线程池线程的数量与本地的网络有关,根据情况设置。网络状态越好，线程可以设置越多
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(10);
 
         while (!queue.isEmpty()) {
