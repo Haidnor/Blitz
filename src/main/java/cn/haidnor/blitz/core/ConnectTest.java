@@ -14,22 +14,21 @@ import java.util.concurrent.Executors;
  * @author Haidnor
  */
 public class ConnectTest implements Runnable {
+
     static int size;
     static ArrayDeque<HttpRequest> queue;
 
     public void run() {
         HttpRequest request;
 
-        Object obj = new Object();
-
-        synchronized (obj) {
+        synchronized (ConnectTest.class) {
             request = queue.pop();
         }
 
         int connection = HttpUtil.testHttpConnection(request.address, 3000);
         System.out.println(request.address + " :" + connection);
 
-        synchronized (obj) {
+        synchronized (ConnectTest.class) {
             if (connection == 200) {
                 size++;
                 System.out.println("可用连接数:" + size);

@@ -22,12 +22,11 @@ public class Hacker implements Runnable {
 
     public void run() {
         HttpRequest request = null;
-        Object obj = new Object();
-        synchronized (obj) {
+        synchronized (Hacker.class) {
             request = queue.pop();
         }
 
-        String path = "E:/video/" + request.filename + ".ts";
+        String path = "d:/test/" + request.filename + ".ts";
 
         DataInputStream dataInputStream = null;
         FileOutputStream fileOutputStream = null;
@@ -49,13 +48,13 @@ public class Hacker implements Runnable {
             }
             fileOutputStream.write(output.toByteArray());
 
-            synchronized (new Object()) {
+            synchronized (Hacker.class) {
                 size++;
                 System.out.println(Thread.currentThread().getName() + " Complete：" + request.address + "   :" + size);
             }
 
         } catch (Exception e) {
-            synchronized (new Object()) {
+            synchronized (Hacker.class) {
                 // 连接测试次数
                 if (request.count < 10) {
                     queue.add(request);
@@ -82,8 +81,8 @@ public class Hacker implements Runnable {
     }
 
     public static void main(String[] args) {
-        // 测试总数
-        int totalFiles = 1700;
+        // 测试总数  钢铁侠3 1600
+        int totalFiles = 1600;
 
         // 起始数字
         int start = 1;
@@ -104,7 +103,8 @@ public class Hacker implements Runnable {
         }
 
         // TreadPool
-        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(50);
+        // 线程数与本地的网络有关,根据情况设置
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(10);
 
         while (!queue.isEmpty()) {
             Runnable thread = new Hacker();
