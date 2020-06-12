@@ -31,13 +31,13 @@ public class ConnectTest implements Runnable {
         synchronized (ConnectTest.class) {
             if (connection == 200) {
                 size++;
-                System.out.println("可用连接数:" + size);
+                System.out.println("Available connection count:" + size);
             } else {
                 // 连接测试次数
                 if (request.count < 100) {
                     queue.add(request);
                 }
-                System.out.println("可用连接数:" + size);
+                System.out.println("Available connection count:" + size);
                 request.count++;
             }
         }
