@@ -1,4 +1,4 @@
-package cn.haidnor.blitz.pojo;
+package cn.haidnor.blitz.bean;
 
 /**
  * 封装请求相关信息

@@ -25,7 +25,7 @@ public class Downloader {
     /**
      * 下载的总线程数
      */
-    private static final int THREAD_AMOUNT = 100;
+    private static final int THREAD_AMOUNT = 32;
 
     /**
      * 下载目录。如果该目录不存在则会自动创建
@@ -93,8 +93,6 @@ public class Downloader {
             // 结束位置
             int end = id * threadLen + threadLen - 1;
 
-            // System.out.println("线程" + id + ": " + start + "-" + end);
-
             try {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setConnectTimeout(5000);
@@ -118,7 +116,6 @@ public class Downloader {
                     percentage += 1;
                     System.out.println("已下载:" + percentage + "%");
                 }
-//                System.out.println("线程" + id + "下载完毕");
 
                 try {
                     raf.close();
@@ -136,5 +133,4 @@ public class Downloader {
         String address = "http://forspeed.onlinedown.net/down/eclipse-jee-mars-1-win32-x86_64.zip";
         new Downloader(address, "eclipse-jee-mars-1-win32-x86_64.zip").download();
     }
-
 }

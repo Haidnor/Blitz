@@ -1,6 +1,6 @@
 package cn.haidnor.blitz.core;
 
-import cn.haidnor.blitz.pojo.HttpRequest;
+import cn.haidnor.blitz.bean.HttpRequest;
 import cn.haidnor.blitz.util.FileUtil;
 import cn.haidnor.blitz.util.HttpUtil;
 

@@ -1,6 +1,6 @@
 package cn.haidnor.blitz.core;
 
-import cn.haidnor.blitz.pojo.HttpRequest;
+import cn.haidnor.blitz.bean.HttpRequest;
 import cn.haidnor.blitz.util.FileUtil;
 
 import java.io.*;
@@ -11,8 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * 多线程下载多个文件
- * https://www.qsptv.ne
+ * 多线程下载电影
  *
  * @author Haidnor
  */
@@ -81,7 +80,6 @@ public class Hacker implements Runnable {
     }
 
     public static void main(String[] args) {
-        // 测试总数  钢铁侠3 1600
         int totalFiles = 1600;
 
         // 起始数字
